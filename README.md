@@ -78,6 +78,12 @@ actual = my_thing_mock.multiple_arg(number=1, prefix="p")
 
 assert expected_result == actual
 verify(my_thing_mock).multiple_arg("p", 1)
+
+# Or use calls() for more flexible verification
+from typemock import calls
+
+calls(my_thing_mock).multiple_arg.assert_called_once()
+calls(my_thing_mock).multiple_arg.call_count  # 1
 ```
 
 ### Type safety
@@ -119,6 +125,7 @@ with tmock(MyThing) as my_thing_mock:
 - **Async support** — works with async/await methods
 - **Attribute mocking** — mock class and instance attributes
 - **Verification** — verify method calls with `verify()`
+- **Call introspection** — inspect calls with `calls()` (call_count, call_args, assert_called_*)
 
 ## Requirements
 

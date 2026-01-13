@@ -19,7 +19,7 @@ class MockObject[T]:
             mocked_instance = cast(T, mocked_thing)
             mocked_class = cast(type[T], mocked_thing.__class__)
         else:
-            mocked_class = mocked_thing  # type: ignore
+            mocked_class = mocked_thing
             mocked_instance = try_instantiate_class(cast(type[T], mocked_thing))
         validate_class_type_hints(
             clazz=mocked_class,

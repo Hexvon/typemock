@@ -1,6 +1,6 @@
 [project]
 name = "typemock"
-version = "0.6.0"
+version = "0.6.1"
 description = "Type safe mocking"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -64,6 +64,7 @@ reportDeprecated = true
 #reportDuplicateImport=true
 #reportImportCycles=true
 reportUnusedCallResult = false
+reportUnnecessaryTypeIgnoreComment = true
 
 pythonVersion = "3.12"
 

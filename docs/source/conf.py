@@ -22,7 +22,7 @@ copyright = "2019-2025, Laurence Willmore, Matt Poletaev"
 author = "Laurence Willmore, Matt Poletaev"
 
 # The full version, including alpha/beta/rc tags
-release = "0.6.0"
+release = "0.6.1"
 
 
 # -- General configuration ---------------------------------------------------

@@ -228,9 +228,9 @@ class MockMethodState[R]:
                 param = self._arg_name_to_parameter[arg_name]
                 arg_type = func_annotations[arg_name]
                 if param.kind == inspect.Parameter.VAR_POSITIONAL:
-                    arg_type = tuple[arg_type, ...]  # type: ignore
+                    arg_type = tuple[arg_type, ...]
                 if param.kind == inspect.Parameter.VAR_KEYWORD:
-                    arg_type = dict[str, arg_type]  # type: ignore
+                    arg_type = dict[str, arg_type]
                 if not is_type(arg_value, arg_type):
                     raise MockTypeSafetyError(
                         "Method: {} Arg: {} must be of type:{}".format(
