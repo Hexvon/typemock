@@ -1,11 +1,11 @@
-from typing import Callable, Generic, cast, TypeVar
+from typing import Callable, Generic, TypeVar, cast
 
 from typemock._mock import MockObject
 from typemock._mock.methods import MockMethodState
 from typemock._utils import bind
 from typemock.api import VerifyError
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 _error_no_interactions_with_others = """
 
@@ -117,14 +117,13 @@ def _verify_method(method_state: MockMethodState, exactly: int) -> Callable:
                             method_name=method_state.name,
                             expected_args=call_count.call,
                             count=len(call_count.other_calls),
-                            first_other=call_count.other_calls[0]
+                            first_other=call_count.other_calls[0],
                         )
                     )
                 else:
                     raise VerifyError(
                         _error_no_interactions.format(
-                            method_name=method_state.name,
-                            expected_args=call_count.call
+                            method_name=method_state.name, expected_args=call_count.call
                         )
                     )
         else:
@@ -137,7 +136,7 @@ def _verify_method(method_state: MockMethodState, exactly: int) -> Callable:
                             other_count=len(call_count.other_calls),
                             first_other=call_count.other_calls[0],
                             expected_count=exactly,
-                            actual_interactions=call_count.count
+                            actual_interactions=call_count.count,
                         )
                     )
                 else:
@@ -146,7 +145,7 @@ def _verify_method(method_state: MockMethodState, exactly: int) -> Callable:
                             method_name=method_state.name,
                             expected_count=exactly,
                             actual_interactions=call_count.count,
-                            expected_args=call_count.call
+                            expected_args=call_count.call,
                         )
                     )
 
@@ -174,21 +173,23 @@ class _VerifyObject(Generic[T]):
                 if exactly == -1:
                     if get_calls < 1:
                         raise VerifyError(
-                            "\nThere were no gets of attribute: {}\n".format(
-                                state.name
-                            )
+                            "\nThere were no gets of attribute: {}\n".format(state.name)
                         )
                     else:
                         return
                 else:
                     if get_calls != exactly:
                         if get_calls == 0:
-                            message = "\nThere were no gets for attribute: {}. Expecting {}\n".format(
-                                state.name, exactly
+                            message = (
+                                "\nThere were no gets for attribute: {}. Expecting {}\n".format(
+                                    state.name, exactly
+                                )
                             )
                         else:
-                            message = "\nThere were {} gets for attribute: {}. Expecting {}\n".format(
-                                get_calls, state.name, exactly
+                            message = (
+                                "\nThere were {} gets for attribute: {}. Expecting {}\n".format(
+                                    get_calls, state.name, exactly
+                                )
                             )
                         raise VerifyError(message)
                     else:
@@ -210,14 +211,13 @@ class _VerifyObject(Generic[T]):
                                     attribute_name=state.name,
                                     expected_args=called_set_record.call,
                                     count=len(called_set_record.other_calls),
-                                    first_other=called_set_record.other_calls[0]
+                                    first_other=called_set_record.other_calls[0],
                                 )
                             )
                         else:
                             raise VerifyError(
                                 _error_no_sets.format(
-                                    attribute_name=state.name,
-                                    expected_args=called_set_record.call
+                                    attribute_name=state.name, expected_args=called_set_record.call
                                 )
                             )
 
@@ -233,14 +233,13 @@ class _VerifyObject(Generic[T]):
                                     expected_count=exactly,
                                     other_count=len(called_set_record.other_calls),
                                     first_other=called_set_record.other_calls[0],
-                                    actual_interactions=called_set_record.count
+                                    actual_interactions=called_set_record.count,
                                 )
                             )
                         else:
                             raise VerifyError(
                                 _error_no_sets.format(
-                                    attribute_name=state.name,
-                                    expected_args=called_set_record.call
+                                    attribute_name=state.name, expected_args=called_set_record.call
                                 )
                             )
                     else:

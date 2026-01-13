@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Generic, List, TypeVar, Callable, Any, Tuple
+from collections.abc import Callable
+from typing import Any, Generic, NoReturn, TypeVar
 
-from typemock.api import NoBehaviourSpecifiedError, DoFunction
+from typemock.api import DoFunction, NoBehaviourSpecifiedError
 
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
 
 class Responder(ABC, Generic[R]):
@@ -17,8 +18,7 @@ class Responder(ABC, Generic[R]):
         pass
 
 
-class ResponderBasic(Generic[R], Responder[R]):
-
+class ResponderBasic[R](Responder[R]):
     def __init__(self, response: R):
         self._response = response
 
@@ -26,18 +26,16 @@ class ResponderBasic(Generic[R], Responder[R]):
         return self._response
 
 
-class ResponderRaise(Responder[Exception]):
-
+class ResponderRaise(Responder[NoReturn]):
     def __init__(self, error: Exception):
         self._error = error
 
-    def response(self, *args, **kwargs) -> R:
+    def response(self, *args, **kwargs) -> NoReturn:
         raise self._error
 
 
-class ResponderMany(Generic[R], Responder[R]):
-
-    def __init__(self, responses: List[R], loop: bool):
+class ResponderMany[R](Responder[R]):
+    def __init__(self, responses: list[R], loop: bool):
         self._responses = responses
         self._loop = loop
         self._index = 0
@@ -47,15 +45,18 @@ class ResponderMany(Generic[R], Responder[R]):
             if self._loop:
                 self._index = 0
             else:
-                raise NoBehaviourSpecifiedError("No more responses. Do you want to loop through many responses?")
+                raise NoBehaviourSpecifiedError(
+                    "No more responses. Do you want to loop through many responses?"
+                )
         response = self._responses[self._index]
         self._index += 1
         return response
 
 
-class ResponderDo(Generic[R], Responder[R]):
-
-    def __init__(self, do_function: DoFunction, ordered_call: Callable[..., Tuple[Tuple[str, Any], ...]]):
+class ResponderDo[R](Responder[R]):
+    def __init__(
+        self, do_function: DoFunction[R], ordered_call: Callable[..., tuple[tuple[str, Any], ...]]
+    ):
         self._ordered_call = ordered_call
         self._do_function = do_function
 

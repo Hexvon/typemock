@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from enum import Enum
-from typing import TypeVar, List, Generic, Callable
+from typing import TypeVar
 
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
-DoFunction = Callable[..., R]
+type DoFunction[R] = Callable[..., R]
 
 
-class ResponseBuilder(ABC, Generic[R]):
-
+class ResponseBuilder[R](ABC):
     @abstractmethod
     def then_return(self, result: R) -> None:
         """
@@ -31,7 +31,7 @@ class ResponseBuilder(ABC, Generic[R]):
         """
 
     @abstractmethod
-    def then_return_many(self, results: List[R], loop: bool = False) -> None:
+    def then_return_many(self, results: list[R], loop: bool = False) -> None:
         """
         Sets the behaviour of the mock to iterate through a series of results on each successive call.
 
@@ -68,7 +68,9 @@ class ResponseBuilder(ABC, Generic[R]):
 
 class TypeSafety(Enum):
     STRICT = 1  # Everything must be type hinted
-    NO_RETURN_IS_NONE_RETURN = 2  # Everything type hinted, but no returns are interpreted as None returns
+    NO_RETURN_IS_NONE_RETURN = (
+        2  # Everything type hinted, but no returns are interpreted as None returns
+    )
     RELAXED = 3  # Enforce type safety where there are type hints.
 
 
@@ -83,7 +85,7 @@ class MissingHint:
     Describes the path to a missing type hint annotation.
     """
 
-    def __init__(self, path: List[str], member_type: str):
+    def __init__(self, path: list[str], member_type: str):
         self.path = path
         self.member_type = member_type
 
@@ -94,8 +96,7 @@ class MissingHint:
 
     def __repr__(self):
         return "MissingHint(path={path}, member_type={member_type})".format(
-            path=self.path,
-            member_type=self.member_type
+            path=self.path, member_type=self.member_type
         )
 
 

@@ -1,16 +1,20 @@
-from typing import Any, Generic, Type, List, TypeVar, Tuple
+from typing import Any, Generic, List, Tuple, Type, TypeVar
 
-from typemock._mock.responders import Responder, ResponderBasic, ResponderMany, ResponderRaise, ResponderDo
+from typemock._mock.responders import (
+    Responder,
+    ResponderBasic,
+    ResponderDo,
+    ResponderMany,
+    ResponderRaise,
+)
 from typemock._utils import Blank, is_type
-from typemock.api import MockTypeSafetyError, DoFunction
-from typemock.api import ResponseBuilder
+from typemock.api import DoFunction, MockTypeSafetyError, ResponseBuilder
 
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
 
 class CalledSetRecord:
-
     def __init__(self, call: Any, count: int, other_calls: List[Any]):
         self.call = call
         self.count = count
@@ -22,7 +26,6 @@ def _null_ordered_call(*args, **kwargs) -> Tuple[Tuple[str, Any], ...]:
 
 
 class MockAttributeState(Generic[R]):
-
     def __init__(self, name: str, initial_value: R, type_hint: Type):
         self.name = name
         self.type_hint = type_hint
@@ -33,10 +36,12 @@ class MockAttributeState(Generic[R]):
     def _validate_return(self, response: R):
         if not isinstance(self.type_hint, Blank):
             if not is_type(response, self.type_hint):
-                raise MockTypeSafetyError("Attribute: {} must be of type:{}".format(
-                    self.name,
-                    self.type_hint,
-                ))
+                raise MockTypeSafetyError(
+                    "Attribute: {} must be of type:{}".format(
+                        self.name,
+                        self.type_hint,
+                    )
+                )
 
     def set_response(self, response: R):
         self._validate_return(response)
@@ -79,7 +84,6 @@ class MockAttributeState(Generic[R]):
 
 
 class AttributeResponseBuilder(Generic[R], ResponseBuilder[R]):
-
     def __init__(self, attribute_state: MockAttributeState):
         self._attribute_state = attribute_state
 

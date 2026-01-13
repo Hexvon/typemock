@@ -1,3 +1,70 @@
+[project]
+name = "typemock"
+version = "0.6.0"
+description = "Type safe mocking"
+readme = "README.md"
+requires-python = "==3.14.*"
+license = "MIT"
+authors = [
+    { name = "Laurence Willmore" }
+]
+maintainers = [
+    { name = "Matt Poletaev" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "typeguard>=4.4.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/hexvon/typemock"
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests*"]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.37.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.11",
+    "trio>=0.29.0",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+fix = true
+
+[tool.ruff.lint]
+extend-select = ["I", "FAST"]
+
+[tool.ruff.format]
+
+[tool.basedpyright]
+include = ["typemock"]
+exclude = ["docs", "scripts", "tests"]
+
+reportMissingImports = true
+typeCheckingMode = "standard"
+reportMissingTypeStubs = false
+strictDictionaryInference = true
+reportDeprecated = true
+#deprecateTypingAliases=true
+#strictGenericNarrowing=true
+#enableTypeIgnoreComments=false
+#reportUnreachable=true
+#reportRedeclaration=true
+#reportDuplicateImport=true
+#reportImportCycles=true
+reportUnusedCallResult = false
+
+pythonVersion = "3.14"
+
 [build-system]
 requires = [
     "setuptools >= 40.6.2",

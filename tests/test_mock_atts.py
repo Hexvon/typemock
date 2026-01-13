@@ -11,9 +11,9 @@ class MyThing:
     generic_att: List[str] = []
 
     def __init__(
-            self,
-            class_att_with_typed_init: str,  # <- provides type for class level attribute
-            instance_att_typed_init: int,  # <- provides type for instance attribute
+        self,
+        class_att_with_typed_init: str,  # <- provides type for class level attribute
+        instance_att_typed_init: int,  # <- provides type for instance attribute
     ):
         self.class_att_with_typed_init = class_att_with_typed_init
         self.instance_att_typed_init = instance_att_typed_init  # <- type from init
@@ -34,12 +34,11 @@ mocked_things = [
     MyThing(
         class_att_with_typed_init="init_1",
         instance_att_typed_init=99,
-    )
+    ),
 ]
 
 
 class TestBasicClassAttributeMocking(TestCase):
-
     def test_mock__class_attribute__get__simple_return(self):
         for mocked_thing in mocked_things:
             with self.subTest():
@@ -65,14 +64,10 @@ class TestBasicClassAttributeMocking(TestCase):
                 self.assertEqual(expected, actual)
 
     def test_mock__class_attribute__get__many(self):
-        expected_responses = [
-            3,
-            4
-        ]
+        expected_responses = [3, 4]
 
         for mocked_thing in mocked_things:
             with self.subTest():
-
                 with tmock(mocked_thing) as my_thing_mock:
                     when(my_thing_mock.class_att_with_type).then_return_many(expected_responses)
 

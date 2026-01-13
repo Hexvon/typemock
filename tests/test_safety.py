@@ -1,11 +1,16 @@
 from unittest import TestCase
 
 from typemock import tmock, when
-from typemock.api import MemberType, MissingHint, MissingTypeHintsError, MockTypeSafetyError, TypeSafety
+from typemock.api import (
+    MemberType,
+    MissingHint,
+    MissingTypeHintsError,
+    MockTypeSafetyError,
+    TypeSafety,
+)
 
 
 class ClassWithNoResponseType:
-
     def method_with_missing_return_type(self):
         pass
 
@@ -17,11 +22,11 @@ class ClassWithMultipleUnHintedThings:
     class_att_with_unhinted_init = "default2"
 
     def __init__(
-            self,
-            class_att_with_init_hint: str,
-            class_att_with_unhinted_init,
-            instance_att_with_init_hint: str,
-            instance_att_with_unhinted_init
+        self,
+        class_att_with_init_hint: str,
+        class_att_with_unhinted_init,
+        instance_att_with_init_hint: str,
+        instance_att_with_unhinted_init,
     ):
         self.class_att_with_init_hint = class_att_with_init_hint
         self.class_att_with_unhinted_init = class_att_with_unhinted_init
@@ -67,18 +72,17 @@ class MyThing:
 
 
 class TestSafety(TestCase):
-
     def test_validate_class_type_hints__strict(self):
         expected_missing_type_hints = [
-            MissingHint(['class_att_with_unhinted_init'], MemberType.ATTRIBUTE),
-            MissingHint(['unhinted_class_att'], MemberType.ATTRIBUTE),
-            MissingHint(['instance_att_hinted_no_init'], MemberType.ATTRIBUTE),
-            MissingHint(['instance_att_unhinted_no_init'], MemberType.ATTRIBUTE),
-            MissingHint(['instance_att_with_unhinted_init'], MemberType.ATTRIBUTE),
-            MissingHint(['method_with_args_and_kwargs', 'args'], MemberType.ARG),
-            MissingHint(['method_with_args_and_kwargs', 'kwargs'], MemberType.ARG),
-            MissingHint(['method_with_missing_arg_hint', 'something'], MemberType.ARG),
-            MissingHint(['method_with_missing_return_type'], MemberType.RETURN)
+            MissingHint(["class_att_with_unhinted_init"], MemberType.ATTRIBUTE),
+            MissingHint(["unhinted_class_att"], MemberType.ATTRIBUTE),
+            MissingHint(["instance_att_hinted_no_init"], MemberType.ATTRIBUTE),
+            MissingHint(["instance_att_unhinted_no_init"], MemberType.ATTRIBUTE),
+            MissingHint(["instance_att_with_unhinted_init"], MemberType.ATTRIBUTE),
+            MissingHint(["method_with_args_and_kwargs", "args"], MemberType.ARG),
+            MissingHint(["method_with_args_and_kwargs", "kwargs"], MemberType.ARG),
+            MissingHint(["method_with_missing_arg_hint", "something"], MemberType.ARG),
+            MissingHint(["method_with_missing_return_type"], MemberType.RETURN),
         ]
 
         with self.assertRaises(MissingTypeHintsError) as error:
@@ -89,14 +93,14 @@ class TestSafety(TestCase):
 
     def test_validate_class_type_hints__no_return_is_none_return(self):
         expected_missing_type_hints = [
-            MissingHint(['class_att_with_unhinted_init'], MemberType.ATTRIBUTE),
-            MissingHint(['unhinted_class_att'], MemberType.ATTRIBUTE),
-            MissingHint(['instance_att_hinted_no_init'], MemberType.ATTRIBUTE),
-            MissingHint(['instance_att_unhinted_no_init'], MemberType.ATTRIBUTE),
-            MissingHint(['instance_att_with_unhinted_init'], MemberType.ATTRIBUTE),
-            MissingHint(['method_with_args_and_kwargs', 'args'], MemberType.ARG),
-            MissingHint(['method_with_args_and_kwargs', 'kwargs'], MemberType.ARG),
-            MissingHint(['method_with_missing_arg_hint', 'something'], MemberType.ARG),
+            MissingHint(["class_att_with_unhinted_init"], MemberType.ATTRIBUTE),
+            MissingHint(["unhinted_class_att"], MemberType.ATTRIBUTE),
+            MissingHint(["instance_att_hinted_no_init"], MemberType.ATTRIBUTE),
+            MissingHint(["instance_att_unhinted_no_init"], MemberType.ATTRIBUTE),
+            MissingHint(["instance_att_with_unhinted_init"], MemberType.ATTRIBUTE),
+            MissingHint(["method_with_args_and_kwargs", "args"], MemberType.ARG),
+            MissingHint(["method_with_args_and_kwargs", "kwargs"], MemberType.ARG),
+            MissingHint(["method_with_missing_arg_hint", "something"], MemberType.ARG),
         ]
 
         with self.assertRaises(MissingTypeHintsError) as error:
@@ -114,7 +118,9 @@ class TestSafety(TestCase):
             with self.subTest():
                 with self.assertRaises(MockTypeSafetyError):
                     with tmock(MyThing, type_safety=type_safety) as my_thing_mock:
-                        when(my_thing_mock.convert_int_to_str("not an int")).then_return("another string")
+                        when(my_thing_mock.convert_int_to_str("not an int")).then_return(
+                            "another string"
+                        )
 
     def test_try_to_specify_behaviour_with_missing_args(self):
         for type_safety in TypeSafety:
@@ -135,7 +141,9 @@ class TestSafety(TestCase):
             with self.subTest():
                 with self.assertRaises(MockTypeSafetyError):
                     with tmock(MyThing, type_safety=type_safety) as my_thing_mock:
-                        when(my_thing_mock.convert_int_to_str(number=1, another=2)).then_return("another string")
+                        when(my_thing_mock.convert_int_to_str(number=1, another=2)).then_return(
+                            "another string"
+                        )
 
     def test_try_to_specify_non_type_safe_return_type__simple_type(self):
         for type_safety in TypeSafety:
@@ -151,7 +159,6 @@ class TestSafety(TestCase):
                         when(my_thing_mock.a_hinted_str_attribute).then_return(1)
 
     def test_try_to_specify_non_type_safe_return_type__simple_type_then_do(self):
-
         def do_return(*args):
             return 1
 
@@ -189,7 +196,6 @@ class TestSafety(TestCase):
 
 
 class TestTypeSafetyRelaxed(TestCase):
-
     def test_specify_behaviour_of_non_hinted_arg(self):
         with tmock(ClassWithMultipleUnHintedThings, type_safety=TypeSafety.RELAXED) as my_mock:
             when(my_mock.method_with_missing_arg_hint("could_be_anything", True)).then_return(None)
@@ -200,12 +206,15 @@ class TestTypeSafetyRelaxed(TestCase):
 
 
 class TestTypeSafetyNoResponseIsNone(TestCase):
-
     def test_specify_return_to_be_None_when_missing(self):
-        with tmock(ClassWithNoResponseType, type_safety=TypeSafety.NO_RETURN_IS_NONE_RETURN) as my_mock:
+        with tmock(
+            ClassWithNoResponseType, type_safety=TypeSafety.NO_RETURN_IS_NONE_RETURN
+        ) as my_mock:
             when(my_mock.method_with_missing_return_type()).then_return(None)
 
     def test_specify_return_to_be_something_elsewhen_missing(self):
         with self.assertRaises(MockTypeSafetyError):
-            with tmock(ClassWithNoResponseType, type_safety=TypeSafety.NO_RETURN_IS_NONE_RETURN) as my_mock:
+            with tmock(
+                ClassWithNoResponseType, type_safety=TypeSafety.NO_RETURN_IS_NONE_RETURN
+            ) as my_mock:
                 when(my_mock.method_with_missing_return_type()).then_return("Something")

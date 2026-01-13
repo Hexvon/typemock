@@ -2,12 +2,11 @@ from unittest import TestCase
 
 import trio as trio
 
-from typemock import tmock, when, verify
+from typemock import tmock, verify, when
 from typemock.api import MockingError
 
 
 class MyAsyncThing:
-
     async def get_an_async_result(self) -> str:
         pass
 
@@ -25,7 +24,6 @@ def async_test(f):
 
 
 class TestAsyncMocking(TestCase):
-
     @async_test
     async def test_we_can_mock_and_verify_an_async_method(self):
         expected = "Hello"

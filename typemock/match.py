@@ -1,18 +1,16 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Any
+from typing import Any, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Matcher(ABC):
-
     @abstractmethod
     def matches(self, other: Any) -> bool:
         pass
 
 
 class MatchAny(Matcher):
-
     def matches(self, other: Any) -> bool:
         return True
 

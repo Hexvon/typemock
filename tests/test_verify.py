@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from typemock import tmock, when, verify, match
+from typemock import match, tmock, verify, when
 from typemock.api import VerifyError
 
 
@@ -21,7 +21,6 @@ class MyThing:
 
 
 class TestMockVerify(TestCase):
-
     def test_verify__at_least__no_calls__verify_error(self):
         with tmock(MyThing) as my_thing_mock:
             when(my_thing_mock.some_instance_attribute).then_return("Hello")

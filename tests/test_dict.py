@@ -4,7 +4,6 @@ from typemock._utils import InefficientUnHashableKeyDict
 
 
 class TestInefficientHashableKeyDict(TestCase):
-
     def test__put__get(self):
         my_dict = InefficientUnHashableKeyDict()
 

@@ -1,11 +1,12 @@
+from collections.abc import Awaitable
 from types import FunctionType
-from typing import Union, Type, cast, TypeVar, Awaitable
+from typing import TypeVar, cast
 
 from typemock._mock.object import MockObject
-from typemock.api import MockingError, TypeSafety, ResponseBuilder
+from typemock.api import MockingError, ResponseBuilder, TypeSafety
 
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
 _error_when_context_closed = """
 Did not receive a response builder.
@@ -25,7 +26,7 @@ You need to await async functions when defining behaviour of the mock. Example:
 """
 
 
-def _tmock(clazz: Union[Type[T], T], type_safety: TypeSafety = TypeSafety.STRICT) -> T:
+def _tmock(clazz: type[T] | T, type_safety: TypeSafety = TypeSafety.STRICT) -> T:
     """
     Mocks a given class.
 
@@ -51,7 +52,9 @@ def _tmock(clazz: Union[Type[T], T], type_safety: TypeSafety = TypeSafety.STRICT
 
     """
     if isinstance(clazz, FunctionType):
-        raise MockingError("Cannot mock a {} for now. Only objects and classes supported".format(clazz))
+        raise MockingError(
+            "Cannot mock a {} for now. Only objects and classes supported".format(clazz)
+        )
     return cast(T, MockObject(clazz, type_safety))
 
 

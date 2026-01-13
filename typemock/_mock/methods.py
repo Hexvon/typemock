@@ -1,24 +1,36 @@
 import inspect
-from collections import OrderedDict
+from collections.abc import Callable
 from inspect import Signature
 from types import FunctionType
-from typing import Tuple, Any, Generic, Dict, List, Callable, TypeVar
+from typing import Any, TypeVar
 
-from typemock._mock.responders import Responder, ResponderBasic, ResponderMany, ResponderRaise, ResponderDo
-from typemock._utils import is_type, InefficientUnHashableKeyDict
-from typemock.api import MockTypeSafetyError, NoBehaviourSpecifiedError, DoFunction
-from typemock.api import TypeSafety, ResponseBuilder
+from typemock._mock.responders import (
+    Responder,
+    ResponderBasic,
+    ResponderDo,
+    ResponderMany,
+    ResponderRaise,
+)
+from typemock._utils import InefficientUnHashableKeyDict, is_type
+from typemock.api import (
+    DoFunction,
+    MockTypeSafetyError,
+    NoBehaviourSpecifiedError,
+    ResponseBuilder,
+    TypeSafety,
+)
 from typemock.match import Matcher
 
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
-OrderedCallValues = Tuple[Tuple[str, Any], ...]
+type OrderedCallValues = tuple[tuple[str, Any], ...]
 
 
 class CallCount:
-
-    def __init__(self, call: OrderedCallValues, count: int, other_calls: List[OrderedCallValues]):
+    def __init__(
+        self, call: OrderedCallValues, count: int, other_calls: list[OrderedCallValues]
+    ) -> None:
         self.call = call
         self.count = count
         self.other_calls = other_calls
@@ -42,26 +54,28 @@ def has_matchers(call: OrderedCallValues) -> bool:
     return False
 
 
-class MockMethodState(Generic[R]):
-
+class MockMethodState[R]:
     def __init__(
-            self,
-            name: str,
-            signature: Signature,
-            func: FunctionType,
-            type_safety: TypeSafety
-    ):
+        self,
+        name: str,
+        signature: Signature,
+        func: FunctionType,
+        type_safety: TypeSafety,
+    ) -> None:
         self.name = name
         self.func = func
         self._signature = signature
         self._type_safety = type_safety
-        self._responses: InefficientUnHashableKeyDict[OrderedCallValues, Responder] = InefficientUnHashableKeyDict()
-        self._matcher_responses: InefficientUnHashableKeyDict[
-            OrderedCallValues, Responder] = InefficientUnHashableKeyDict()
+        self._responses: InefficientUnHashableKeyDict[OrderedCallValues, Responder] = (
+            InefficientUnHashableKeyDict()
+        )
+        self._matcher_responses: InefficientUnHashableKeyDict[OrderedCallValues, Responder] = (
+            InefficientUnHashableKeyDict()
+        )
         self._open = False
-        self._arg_index_to_arg_name: Dict[int, str] = {}
-        self._arg_name_to_parameter: Dict[str, inspect.Parameter] = {}
-        self._call_record: List[OrderedCallValues] = []
+        self._arg_index_to_arg_name: dict[int, str] = {}
+        self._arg_name_to_parameter: dict[str, inspect.Parameter] = {}
+        self._call_record: list[OrderedCallValues] = []
         i = 0
         for name, param in signature.parameters.items():
             self._arg_index_to_arg_name[i] = name
@@ -78,10 +92,7 @@ class MockMethodState(Generic[R]):
         for name, param in self._signature.parameters.items():
             if name == "self":
                 continue
-            value = args_dict.get(
-                name,
-                self._arg_name_to_parameter[name].default
-            )
+            value = args_dict.get(name, self._arg_name_to_parameter[name].default)
             ordered_key_values.append((name, value))
         return tuple(ordered_key_values)
 
@@ -93,12 +104,14 @@ class MockMethodState(Generic[R]):
             self._check_key_type_safety(ordered_call)
             return ordered_call
         except TypeError as e:
-            raise MockTypeSafetyError(_error_invalid_mock_args.format(
-                method_name=self.name,
-                attempted_args=args[1:],
-                attempted_kwargs=kwargs,
-                actual_signature=self._signature
-            )) from e
+            raise MockTypeSafetyError(
+                _error_invalid_mock_args.format(
+                    method_name=self.name,
+                    attempted_args=args[1:],
+                    attempted_kwargs=kwargs,
+                    actual_signature=self._signature,
+                )
+            ) from e
 
     def response_for(self, *args, **kwargs) -> R:
         key = self._ordered_call(*args, **kwargs)
@@ -111,7 +124,7 @@ class MockMethodState(Generic[R]):
             for matcher_key, responder in self._matcher_responses.items():
                 if matcher_key == key:
                     self._check_key_type_safety(key)
-                    r = responder.response(**OrderedDict(key))
+                    r = responder.response(**dict(key))
                     self._validate_return(r)
                     return r
             raise NoBehaviourSpecifiedError(
@@ -135,29 +148,37 @@ class MockMethodState(Generic[R]):
             return_type = func_annotations.get("return")
             if return_type is None:
                 if response is not None:
-                    raise MockTypeSafetyError("Method: {} return must be of type:{}".format(
+                    raise MockTypeSafetyError(
+                        "Method: {} return must be of type:{}".format(
+                            self.name,
+                            return_type,
+                        )
+                    )
+            elif not isinstance(response, return_type):
+                raise MockTypeSafetyError(
+                    "Method: {} return must be of type:{}".format(
                         self.name,
                         return_type,
-                    ))
-            elif not isinstance(response, return_type):
-                raise MockTypeSafetyError("Method: {} return must be of type:{}".format(
-                    self.name,
-                    return_type,
-                ))
+                    )
+                )
         else:
             if "return" in func_annotations:
                 return_type = func_annotations["return"]
                 if return_type is None:
                     if response is not None:
-                        raise MockTypeSafetyError("Method: {} return must be of type:{}".format(
+                        raise MockTypeSafetyError(
+                            "Method: {} return must be of type:{}".format(
+                                self.name,
+                                return_type,
+                            )
+                        )
+                elif not is_type(response, return_type):
+                    raise MockTypeSafetyError(
+                        "Method: {} return must be of type:{}".format(
                             self.name,
                             return_type,
-                        ))
-                elif not is_type(response, return_type):
-                    raise MockTypeSafetyError("Method: {} return must be of type:{}".format(
-                        self.name,
-                        return_type,
-                    ))
+                        )
+                    )
 
     def _set_key_to_responder(self, key: OrderedCallValues, responder: Responder):
         if has_matchers(key):
@@ -173,7 +194,7 @@ class MockMethodState(Generic[R]):
         else:
             self._responses[key] = ResponderBasic(response)
 
-    def set_response_many(self, results: List[R], loop: bool, *args, **kwargs):
+    def set_response_many(self, results: list[R], loop: bool, *args, **kwargs) -> None:
         key = self._ordered_call(*args, **kwargs)
         for response in results:
             self._validate_return(response)
@@ -207,39 +228,39 @@ class MockMethodState(Generic[R]):
                 param = self._arg_name_to_parameter[arg_name]
                 arg_type = func_annotations[arg_name]
                 if param.kind == inspect.Parameter.VAR_POSITIONAL:
-                    arg_type = Tuple[arg_type, ...]  # type: ignore
+                    arg_type = tuple[arg_type, ...]  # type: ignore
                 if param.kind == inspect.Parameter.VAR_KEYWORD:
-                    arg_type = Dict[str, arg_type]  # type: ignore
+                    arg_type = dict[str, arg_type]  # type: ignore
                 if not is_type(arg_value, arg_type):
-                    raise MockTypeSafetyError("Method: {} Arg: {} must be of type:{}".format(
-                        self.name,
-                        arg_name,
-                        arg_type
-                    ))
+                    raise MockTypeSafetyError(
+                        "Method: {} Arg: {} must be of type:{}".format(
+                            self.name, arg_name, arg_type
+                        )
+                    )
 
 
 def mock_method(state: MockMethodState) -> Callable:
     if inspect.iscoroutinefunction(state.func):
-        async def method_mock(*args, **kwargs):
+
+        async def async_mock(*args, **kwargs):
             if state.is_open():
                 return MethodResponseBuilder(state, *args, **kwargs)
             else:
                 return state.response_for(*args, **kwargs)
 
-        return method_mock
-    else:
-        def method_mock(*args, **kwargs):
-            if state.is_open():
-                return MethodResponseBuilder(state, *args, **kwargs)
-            else:
-                return state.response_for(*args, **kwargs)
+        return async_mock
 
-        return method_mock
+    def sync_mock(*args, **kwargs):
+        if state.is_open():
+            return MethodResponseBuilder(state, *args, **kwargs)
+        else:
+            return state.response_for(*args, **kwargs)
+
+    return sync_mock
 
 
-class MethodResponseBuilder(Generic[R], ResponseBuilder[R]):
-
-    def __init__(self, method_state: MockMethodState, *args, **kwargs):
+class MethodResponseBuilder[R](ResponseBuilder[R]):
+    def __init__(self, method_state: MockMethodState, *args, **kwargs) -> None:
         self._method_state = method_state
         self._args = args
         self._kwargs = kwargs
@@ -250,7 +271,7 @@ class MethodResponseBuilder(Generic[R], ResponseBuilder[R]):
     def then_raise(self, error: Exception) -> None:
         self._method_state.set_error_response(error, *self._args, **self._kwargs)
 
-    def then_return_many(self, results: List[R], loop: bool = False) -> None:
+    def then_return_many(self, results: list[R], loop: bool = False) -> None:
         self._method_state.set_response_many(results, loop, *self._args, **self._kwargs)
 
     def then_do(self, do_function: DoFunction) -> None:

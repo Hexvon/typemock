@@ -1,7 +1,7 @@
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 from unittest import TestCase
 
-from typemock import tmock, when, verify, match
+from typemock import match, tmock, verify, when
 from typemock.api import NoBehaviourSpecifiedError
 
 
@@ -26,9 +26,7 @@ class MyThing:
         pass
 
     def method_with_standard_generic_args_and_return(
-            self,
-            list_arg: List[str],
-            dict_arg: Dict[str, int]
+        self, list_arg: List[str], dict_arg: Dict[str, int]
     ) -> Dict[str, Any]:
         pass
 
@@ -38,7 +36,9 @@ class MyThing:
     def method_with_args_and_kwargs(self, *args: str, **kwargs: int) -> bool:
         pass
 
-    def method_with_normal_args_and_kwargs(self, explicit1: int, *args: str, explicit2: int, **kwargs: int) -> bool:
+    def method_with_normal_args_and_kwargs(
+        self, explicit1: int, *args: str, explicit2: int, **kwargs: int
+    ) -> bool:
         pass
 
 
@@ -46,7 +46,6 @@ mocked_things = [MyThing, MyThing()]
 
 
 class TestBasicMethodMocking(TestCase):
-
     def test_mock__isinstance_of_mocked_class(self):
         for mocked_thing in mocked_things:
             with self.subTest("{}".format(mocked_thing)):
@@ -117,9 +116,9 @@ class TestBasicMethodMocking(TestCase):
                 expected_result = False
 
                 with tmock(mocked_thing) as my_thing_mock:
-                    when(my_thing_mock.method_with_args_and_kwargs(
-                        "a", "b", key1=1, key2=2
-                    )).then_return(expected_result)
+                    when(
+                        my_thing_mock.method_with_args_and_kwargs("a", "b", key1=1, key2=2)
+                    ).then_return(expected_result)
 
                 actual = my_thing_mock.method_with_args_and_kwargs("a", "b", key1=1, key2=2)
 
@@ -145,20 +144,19 @@ class TestBasicMethodMocking(TestCase):
                 expected_result = {"my_key": True}
 
                 with tmock(mocked_thing) as my_thing_mock:
-                    when(my_thing_mock.method_with_standard_generic_args_and_return(
-                        list_arg=["hello"],
-                        dict_arg={"foo": False}
-                    )).then_return(expected_result)
+                    when(
+                        my_thing_mock.method_with_standard_generic_args_and_return(
+                            list_arg=["hello"], dict_arg={"foo": False}
+                        )
+                    ).then_return(expected_result)
 
                 actual = my_thing_mock.method_with_standard_generic_args_and_return(
-                    list_arg=["hello"],
-                    dict_arg={"foo": False}
+                    list_arg=["hello"], dict_arg={"foo": False}
                 )
 
                 self.assertEqual(expected_result, actual)
                 verify(my_thing_mock).method_with_standard_generic_args_and_return(
-                    list_arg=["hello"],
-                    dict_arg={"foo": False}
+                    list_arg=["hello"], dict_arg={"foo": False}
                 )
 
     def test_mock__can_mock_method__multiple_args__mixed_with_kwargs_in_usage(self):
@@ -169,10 +167,7 @@ class TestBasicMethodMocking(TestCase):
                 with tmock(mocked_thing) as my_thing_mock:
                     when(my_thing_mock.multiple_arg("p", 1)).then_return(expected_result)
 
-                actual = my_thing_mock.multiple_arg(
-                    number=1,
-                    prefix="p"
-                )
+                actual = my_thing_mock.multiple_arg(number=1, prefix="p")
 
                 self.assertEqual(expected_result, actual)
                 verify(my_thing_mock).multiple_arg("p", 1)
@@ -183,7 +178,9 @@ class TestBasicMethodMocking(TestCase):
                 expected_result = "a string"
 
                 with tmock(mocked_thing) as my_thing_mock:
-                    when(my_thing_mock.multiple_arg(number=1, prefix="p")).then_return(expected_result)
+                    when(my_thing_mock.multiple_arg(number=1, prefix="p")).then_return(
+                        expected_result
+                    )
 
                 actual = my_thing_mock.multiple_arg("p", 1)
 
@@ -204,10 +201,11 @@ class TestBasicMethodMocking(TestCase):
         for mocked_thing in mocked_things:
             with self.subTest("{}".format(mocked_thing)):
                 with tmock(mocked_thing) as my_thing_mock:
-                    when(my_thing_mock.method_with_default_args(
-                        first_number=match.anything(),
-                        second_string=match.anything()
-                    )).then_return(None)
+                    when(
+                        my_thing_mock.method_with_default_args(
+                            first_number=match.anything(), second_string=match.anything()
+                        )
+                    ).then_return(None)
 
                 my_thing_mock.method_with_default_args(1)
 
@@ -235,14 +233,10 @@ class TestBasicMethodMocking(TestCase):
                     my_thing_mock.do_something_with_side_effects()
 
     def test_mock__then_return_many__loop_false(self):
-        expected_responses = [
-            "first response",
-            "second response"
-        ]
+        expected_responses = ["first response", "second response"]
 
         for mocked_thing in mocked_things:
             with self.subTest("{}".format(mocked_thing)):
-
                 with tmock(mocked_thing) as my_thing_mock:
                     when(my_thing_mock.return_a_str()).then_return_many(expected_responses, False)
 
@@ -255,10 +249,7 @@ class TestBasicMethodMocking(TestCase):
                     my_thing_mock.return_a_str()
 
     def test_mock__then_return_many__loop_true(self):
-        expected_responses = [
-            "first response",
-            "second response"
-        ]
+        expected_responses = ["first response", "second response"]
 
         for mocked_thing in mocked_things:
             with self.subTest("{}".format(mocked_thing)):
@@ -271,7 +262,6 @@ class TestBasicMethodMocking(TestCase):
                         self.assertEqual(expected, actual)
 
     def test_mock__then_do(self):
-
         expected_arg = 1
 
         def bounce_back_handler(number: int):
@@ -281,10 +271,13 @@ class TestBasicMethodMocking(TestCase):
         for mocked_thing in mocked_things:
             with self.subTest("{}".format(mocked_thing)):
                 with tmock(mocked_thing) as my_thing_mock:
-                    when(my_thing_mock.convert_int_to_str(match.anything())).then_do(bounce_back_handler)
+                    when(my_thing_mock.convert_int_to_str(match.anything())).then_do(
+                        bounce_back_handler
+                    )
 
             actual = my_thing_mock.convert_int_to_str(expected_arg)
 
             self.assertEqual("1", actual)
+
 
 # TODO: We can still mock a context object - idea: setup can only happen on_first - successive contexts revert.

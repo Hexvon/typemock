@@ -3,14 +3,13 @@ import logging
 import types
 import typing
 from types import FunctionType
-from typing import List, Type, Dict, Optional, TypeVar, Union, Any
+from typing import Any, TypeVar
 
-from typeguard import check_type  # type: ignore
+from typeguard import TypeCheckError, check_type
 
-T = TypeVar('T')
-
-K = TypeVar('K')
-V = TypeVar('V')
+T = TypeVar("T")
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 class Blank:
@@ -22,14 +21,13 @@ def typemock_logger():
 
 
 class FunctionEntry:
-
     def __init__(self, name: str, func: FunctionType):
         self.name = name
         self.func = func
 
 
 class AttributeEntry:
-    def __init__(self, name: str, initial_value, type_hint: Type):
+    def __init__(self, name: str, initial_value: Any, type_hint: type):
         self.name = name
         self.initial_value = initial_value
         self.type_hint = type_hint
@@ -43,14 +41,14 @@ def _is_private(name: str) -> bool:
     return not _is_magic(name) and name.startswith("_")
 
 
-def is_property(name: str, thing: Union[Type[T], T]) -> bool:
+def is_property(name: str, thing: type[T] | T) -> bool:
     if inspect.isclass(thing):
         return isinstance(thing.__dict__[name], property)
     else:
         return isinstance(thing.__class__.__dict__[name], property)
 
 
-def get_property(name: str, thing: Union[Type[T], T]) -> property:
+def get_property(name: str, thing: type[T] | T) -> property:
     if inspect.isclass(thing):
         return thing.__dict__[name]
     else:
@@ -120,7 +118,7 @@ def getmembers(object, predicate=None):
     return results
 
 
-def methods(cls, include_private=False) -> List[FunctionEntry]:
+def methods(cls: type, include_private: bool = False) -> list[FunctionEntry]:
     function_entries = []
     for name, func in cls.__dict__.items():
         if isinstance(func, FunctionType):
@@ -128,15 +126,9 @@ def methods(cls, include_private=False) -> List[FunctionEntry]:
                 continue
             elif name.startswith("_"):
                 if include_private:
-                    function_entries.append(FunctionEntry(
-                        name=name,
-                        func=func
-                    ))
+                    function_entries.append(FunctionEntry(name=name, func=func))
             else:
-                function_entries.append(FunctionEntry(
-                    name=name,
-                    func=func
-                ))
+                function_entries.append(FunctionEntry(name=name, func=func))
     return function_entries
 
 
@@ -147,25 +139,25 @@ def _type_hint_for_attribute_from_value(current_hint, value) -> Any:
         return current_hint
 
 
-def attributes(cls, instance=None) -> List[AttributeEntry]:
-    entries: Dict[str, AttributeEntry] = {}
-    annotations = cls.__dict__.get("__annotations__", {})
+def attributes(cls: type, instance: Any = None) -> list[AttributeEntry]:
+    entries: dict[str, AttributeEntry] = {}
+    annotations = getattr(cls, "__annotations__", {})
     init_signature = inspect.getfullargspec(cls.__init__)
     class_attributes = getmembers(cls, lambda a: not (inspect.isroutine(a)))
-    class_attributes = [a for a in class_attributes if not _is_magic(a[0]) and not _is_private(a[0])]
+    class_attributes = [
+        a for a in class_attributes if not _is_magic(a[0]) and not _is_private(a[0])
+    ]
     for attribute in class_attributes:
         name = attribute[0]
         value = attribute[1]
         type_hint = annotations.get(name, init_signature.annotations.get(name, Blank))
         if type_hint is Blank:
             type_hint = _type_hint_for_attribute_from_value(type_hint, value)
-        entries[name] = AttributeEntry(
-            name=name,
-            initial_value=value,
-            type_hint=type_hint
-        )
+        entries[name] = AttributeEntry(name=name, initial_value=value, type_hint=type_hint)
     instance_attributes = getmembers(instance, lambda a: not (inspect.isroutine(a)))
-    instance_attributes = [a for a in instance_attributes if not _is_magic(a[0]) and not _is_private(a[0])]
+    instance_attributes = [
+        a for a in instance_attributes if not _is_magic(a[0]) and not _is_private(a[0])
+    ]
     for attribute in instance_attributes:
         name = attribute[0]
         value = attribute[1]
@@ -175,11 +167,7 @@ def attributes(cls, instance=None) -> List[AttributeEntry]:
             type_hint = init_signature.annotations.get(attribute[0], Blank)
             if type_hint is Blank:
                 type_hint = _type_hint_for_attribute_from_value(type_hint, value)
-            entries[name] = AttributeEntry(
-                name=name,
-                initial_value=value,
-                type_hint=type_hint
-            )
+            entries[name] = AttributeEntry(name=name, initial_value=value, type_hint=type_hint)
 
     return list(entries.values())
 
@@ -192,7 +180,7 @@ def bind(instance, func, as_name=None):
     return bound_method
 
 
-def try_instantiate_class(cls: Type[T]) -> Optional[T]:
+def try_instantiate_class(cls: type[T]) -> T | None:
     init_signature = inspect.getfullargspec(cls.__init__)
     stub_args = tuple([None for _ in range(1, len(init_signature.args))])
     try:
@@ -202,28 +190,25 @@ def try_instantiate_class(cls: Type[T]) -> Optional[T]:
             return cls()
     except Exception:
         typemock_logger().warning(
-            "Could not instantiate instance of {}. Instance attributes will not be available for mocking".format(cls)
+            "Could not instantiate instance of {}. Instance attributes will not be available for mocking".format(
+                cls
+            )
         )
         return None
 
 
 def is_type(value: Any, expected_type: Any) -> bool:
     try:
-        check_type(
-            argname="nothing",
-            value=value,
-            expected_type=expected_type
-        )
+        check_type(value, expected_type)
         return True
-    except TypeError:
+    except TypeCheckError:
         return False
 
 
-class InefficientUnHashableKeyDict(typing.Generic[K, V]):
-
-    def __init__(self):
-        self._backing_keys: List[Any] = []
-        self._backing_values: List[Any] = []
+class InefficientUnHashableKeyDict[K, V]:
+    def __init__(self) -> None:
+        self._backing_keys: list[Any] = []
+        self._backing_values: list[Any] = []
 
     def __setitem__(self, key: K, value: V):
         self._remove_key(key)

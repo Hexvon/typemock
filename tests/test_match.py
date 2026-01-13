@@ -5,7 +5,6 @@ from typemock.api import MockTypeSafetyError
 
 
 class MyThing:
-
     def return_a_str(self) -> str:
         pass
 
@@ -20,7 +19,6 @@ class MyThing:
 
 
 class TestMatcherAny(TestCase):
-
     def test_something_equal_to_any_thing(self):
         matcher = match.anything()
 
@@ -28,7 +26,6 @@ class TestMatcherAny(TestCase):
 
 
 class TestMockObjectMatching(TestCase):
-
     def test_specify_any_matcher_arg__called_with_correct_type__return_single(self):
         expected = "a string"
         with tmock(MyThing) as my_thing_mock:
