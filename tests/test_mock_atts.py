@@ -1,4 +1,3 @@
-from typing import List
 from unittest import TestCase
 
 from typemock import tmock, when
@@ -8,7 +7,7 @@ class MyThing:
     _private_att = None  # <- dont care
     class_att_with_type: int = 1  # <- typed, easy
     class_att_with_typed_init = "bar"  # <- type determined from __init__ annotation.
-    generic_att: List[str] = []
+    generic_att: list[str] = []
 
     def __init__(
         self,

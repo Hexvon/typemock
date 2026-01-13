@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 from unittest import TestCase
 
 from typemock import match, tmock, verify, when
@@ -26,8 +26,8 @@ class MyThing:
         pass
 
     def method_with_standard_generic_args_and_return(
-        self, list_arg: List[str], dict_arg: Dict[str, int]
-    ) -> Dict[str, Any]:
+        self, list_arg: list[str], dict_arg: dict[str, int]
+    ) -> dict[str, Any]:
         pass
 
     def method_with_object(self, nested_obj_arg: NestedThing) -> int:

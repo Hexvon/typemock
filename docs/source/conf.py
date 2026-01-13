@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = "typemock"
-copyright = "2019, Laurence Willmore"
-author = "Laurence Willmore"
+copyright = "2019-2025, Laurence Willmore, Matt Poletaev"
+author = "Laurence Willmore, Matt Poletaev"
 
 # The full version, including alpha/beta/rc tags
-release = "0.5.1-SNAPSHOT"
+release = "0.6.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -55,7 +55,7 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-tml_theme_options = {
+html_theme_options = {
     "canonical_url": "",
     "logo_only": False,
     "display_version": True,
