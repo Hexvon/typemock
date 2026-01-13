@@ -4,6 +4,14 @@ from typemock import match, tmock, when
 from typemock.api import MockTypeSafetyError
 
 
+class SomeObject:
+    pass
+
+
+class AnotherObject:
+    pass
+
+
 class MyThing:
     def return_a_str(self) -> str:
         pass
@@ -15,6 +23,9 @@ class MyThing:
         pass
 
     def do_something_with_side_effects(self) -> None:
+        pass
+
+    def process_object(self, obj: SomeObject) -> str:
         pass
 
 
@@ -58,3 +69,39 @@ class TestMockObjectMatching(TestCase):
 
         with self.assertRaises(MockTypeSafetyError):
             my_thing_mock.convert_int_to_str("not an int")
+
+
+class TestInstanceOfMatcher(TestCase):
+    def test_instance_of_matcher__matches_correct_type(self):
+        matcher = match.instance_of(SomeObject)
+        obj = SomeObject()
+
+        self.assertEqual(obj, matcher)
+
+    def test_instance_of_matcher__does_not_match_wrong_type(self):
+        matcher = match.instance_of(SomeObject)
+        obj = AnotherObject()
+
+        self.assertNotEqual(obj, matcher)
+
+    def test_instance_of_matcher__with_mock(self):
+        from typemock import setup_mock
+
+        expected = "processed"
+        my_thing_mock = tmock(MyThing)
+
+        with setup_mock(my_thing_mock):
+            when(my_thing_mock.process_object(match.instance_of(SomeObject))).then_return(expected)
+
+        actual = my_thing_mock.process_object(SomeObject())
+
+        self.assertEqual(expected, actual)
+
+    def test_instance_of_matcher__with_subclass(self):
+        class SubObject(SomeObject):
+            pass
+
+        matcher = match.instance_of(SomeObject)
+        obj = SubObject()
+
+        self.assertEqual(obj, matcher)

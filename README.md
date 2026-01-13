@@ -112,7 +112,7 @@ with tmock(MyThing) as my_thing_mock:
 ## Features
 
 - **Type safe mocking** — validates argument and return types at runtime
-- **Argument matchers** — use `match.anything()` for flexible matching
+- **Argument matchers** — use `match.anything()` or `match.instance_of(Type)` for flexible matching
 - **Multiple responses** — `then_return_many()` for sequential responses
 - **Exception mocking** — `then_raise()` to mock error conditions
 - **Custom callbacks** — `then_do()` for custom response logic
