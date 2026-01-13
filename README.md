@@ -65,17 +65,16 @@ class MyThing:
 We can mock behaviour and verify interactions as follows:
 
 ```python
-from typemock import tmock, when, verify
+from typemock import tmock, setup_mock, when, verify
 
 expected_result = "a string"
 
-with tmock(MyThing) as my_thing_mock:
+my_thing_mock = tmock(MyThing)
+
+with setup_mock(my_thing_mock):
     when(my_thing_mock.multiple_arg("p", 1)).then_return(expected_result)
 
-actual = my_thing_mock.multiple_arg(
-    number=1,
-    prefix="p"
-)
+actual = my_thing_mock.multiple_arg(number=1, prefix="p")
 
 assert expected_result == actual
 verify(my_thing_mock).multiple_arg("p", 1)
@@ -86,10 +85,10 @@ verify(my_thing_mock).multiple_arg("p", 1)
 When we try to specify behaviour that does not conform to the contract of the object we are mocking:
 
 ```python
-expected_result = "a string"
+my_thing_mock = tmock(MyThing)
 
-with tmock(MyThing) as my_thing_mock:
-    when(my_thing_mock.multiple_arg(prefix="p", number="should be an int")).then_return(expected_result)
+with setup_mock(my_thing_mock):
+    when(my_thing_mock.multiple_arg(prefix="p", number="should be an int")).then_return("a string")
 ```
 
 We get an informative error:
@@ -97,6 +96,18 @@ We get an informative error:
 ```
 typemock.api.MockTypeSafetyError: Method: multiple_arg Arg: number must be of type:<class 'int'>
 ```
+
+<details>
+<summary>Legacy API</summary>
+
+The older context manager syntax is still supported:
+
+```python
+with tmock(MyThing) as my_thing_mock:
+    when(my_thing_mock.multiple_arg("p", 1)).then_return("result")
+```
+
+</details>
 
 ## Features
 
