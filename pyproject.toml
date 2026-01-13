@@ -3,7 +3,7 @@ name = "typemock"
 version = "0.6.0"
 description = "Type safe mocking"
 readme = "README.md"
-requires-python = "==3.14.*"
+requires-python = ">=3.12"
 license = "MIT"
 authors = [
     { name = "Laurence Willmore" }
@@ -13,6 +13,8 @@ maintainers = [
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
 ]
@@ -36,7 +38,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py314"
+target-version = "py312"
 line-length = 100
 fix = true
 
@@ -63,7 +65,7 @@ reportDeprecated = true
 #reportImportCycles=true
 reportUnusedCallResult = false
 
-pythonVersion = "3.14"
+pythonVersion = "3.12"
 
 [build-system]
 requires = [

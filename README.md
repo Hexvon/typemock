@@ -2,10 +2,10 @@
 
 [![CI](https://github.com/hexvon/typemock/actions/workflows/ci.yml/badge.svg)](https://github.com/hexvon/typemock/actions/workflows/ci.yml)
 [![Documentation Status](https://readthedocs.org/projects/typemock/badge/?version=latest)](https://typemock.readthedocs.io/en/latest/?badge=latest)
-[![Python 3.14](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Type safe mocking for Python 3.14+.
+Type safe mocking for Python 3.12+.
 
 1. [Motivation](#motivation)
 2. [Installation](#installation)
@@ -122,7 +122,7 @@ with tmock(MyThing) as my_thing_mock:
 
 ## Requirements
 
-- Python 3.14+
+- Python 3.12+
 - typeguard >= 4.4.4
 
 ## License
