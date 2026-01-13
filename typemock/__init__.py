@@ -1,6 +1,8 @@
+from collections.abc import Generator
+from contextlib import contextmanager
 from typing import TypeVar
 
-from typemock._mock import _tmock, _when
+from typemock._mock import _setup_mock, _tmock, _when
 from typemock._verify import _verify
 from typemock.api import ResponseBuilder, TypeSafety
 
@@ -18,3 +20,9 @@ def when(mock_call_result: R) -> ResponseBuilder[R]:
 
 def verify(mock: T, exactly: int = -1) -> T:
     return _verify(mock=mock, exactly=exactly)
+
+
+@contextmanager
+def setup_mock(mock: T) -> Generator[T, None, None]:
+    with _setup_mock(mock) as m:
+        yield m

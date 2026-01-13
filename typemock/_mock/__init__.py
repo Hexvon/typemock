@@ -1,4 +1,5 @@
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Generator
+from contextlib import contextmanager
 from types import FunctionType
 from typing import TypeVar, cast
 
@@ -73,3 +74,33 @@ def _when(mock_call_result: T) -> ResponseBuilder[T]:
             raise MockingError(_error_when_async_not_awaited)
         raise MockingError(_error_when_context_closed)
     return cast(ResponseBuilder[T], mock_call_result)
+
+
+@contextmanager
+def _setup_mock(mock: T) -> Generator[T, None, None]:
+    """
+    Context manager for setting up mock behaviour.
+
+    Use this to define mocked behaviour with `when`.
+
+    Examples:
+
+        my_mock = tmock(MyClass)
+
+        with setup_mock(my_mock):
+            when(my_mock.do_something()).then_return("A Result")
+
+        result = my_mock.do_something()
+
+    Args:
+        mock: A mock object created with `tmock`
+
+    Yields:
+        The same mock object, opened for setup
+    """
+    mock_obj = cast(MockObject, mock)
+    mock_obj.__enter__()
+    try:
+        yield mock
+    finally:
+        mock_obj.__exit__(None, None, None)

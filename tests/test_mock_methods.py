@@ -1,7 +1,7 @@
 from typing import Any
 from unittest import TestCase
 
-from typemock import match, tmock, verify, when
+from typemock import match, setup_mock, tmock, verify, when
 from typemock.api import NoBehaviourSpecifiedError
 
 
@@ -278,6 +278,60 @@ class TestBasicMethodMocking(TestCase):
             actual = my_thing_mock.convert_int_to_str(expected_arg)
 
             self.assertEqual("1", actual)
+
+
+class TestSetupMockAPI(TestCase):
+    """Tests for the new setup_mock() context manager API."""
+
+    def test_setup_mock__basic_usage(self):
+        """Test that setup_mock works as an alternative to 'with tmock() as'."""
+        expected_result = "a string"
+
+        my_thing_mock = tmock(MyThing)
+
+        with setup_mock(my_thing_mock):
+            when(my_thing_mock.return_a_str()).then_return(expected_result)
+
+        actual = my_thing_mock.return_a_str()
+
+        self.assertEqual(expected_result, actual)
+        verify(my_thing_mock).return_a_str()
+
+    def test_setup_mock__with_args(self):
+        """Test setup_mock with method arguments."""
+        expected_result = "result"
+
+        my_thing_mock = tmock(MyThing)
+
+        with setup_mock(my_thing_mock):
+            when(my_thing_mock.multiple_arg("prefix", 42)).then_return(expected_result)
+
+        actual = my_thing_mock.multiple_arg("prefix", 42)
+
+        self.assertEqual(expected_result, actual)
+        verify(my_thing_mock).multiple_arg("prefix", 42)
+
+    def test_setup_mock__multiple_setups(self):
+        """Test that setup_mock can be called multiple times on the same mock."""
+        my_thing_mock = tmock(MyThing)
+
+        with setup_mock(my_thing_mock):
+            when(my_thing_mock.return_a_str()).then_return("first")
+
+        self.assertEqual("first", my_thing_mock.return_a_str())
+
+        # Setup again with different behaviour
+        with setup_mock(my_thing_mock):
+            when(my_thing_mock.convert_int_to_str(1)).then_return("one")
+
+        self.assertEqual("one", my_thing_mock.convert_int_to_str(1))
+
+    def test_setup_mock__yields_same_mock(self):
+        """Test that setup_mock yields the same mock object."""
+        my_thing_mock = tmock(MyThing)
+
+        with setup_mock(my_thing_mock) as yielded_mock:
+            self.assertIs(my_thing_mock, yielded_mock)
 
 
 # TODO: We can still mock a context object - idea: setup can only happen on_first - successive contexts revert.
