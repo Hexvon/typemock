@@ -228,7 +228,7 @@ wheels = [
 
 [[package]]
 name = "typemock"
-version = "0.6.1"
+version = "0.6.2"
 source = { editable = "." }
 dependencies = [
     { name = "typeguard" },

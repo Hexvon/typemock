@@ -80,6 +80,16 @@ def _call_info_for_method(method_state: MockMethodState) -> CallInfo:
     return CallInfo(method_state)
 
 
+class CallsWrapper(Generic[T]):
+    """
+    Type wrapper for calls() return type.
+
+    Provides CallInfo for each method attribute access.
+    """
+
+    def __getattr__(self, name: str) -> CallInfo: ...
+
+
 class _CallsObject(Generic[T]):
     """Wrapper that provides CallInfo for each method of a mock."""
 
@@ -92,7 +102,7 @@ class _CallsObject(Generic[T]):
             self._method_infos[method_state.name] = CallInfo(method_state)
         self._tmock_initialised = True
 
-    def __getattribute__(self, item: str) -> Any:
+    def __getattribute__(self, item: str) -> CallInfo:
         if item.startswith("_"):
             return object.__getattribute__(self, item)
         if object.__getattribute__(self, "_tmock_initialised"):
@@ -102,7 +112,7 @@ class _CallsObject(Generic[T]):
         return object.__getattribute__(self, item)
 
 
-def _calls(mock: T) -> T:
+def _calls(mock: T) -> CallsWrapper[T]:
     """
     Get call information for a mock's methods.
 
@@ -116,4 +126,4 @@ def _calls(mock: T) -> T:
     Returns:
         A wrapper that provides CallInfo for each method
     """
-    return cast(T, _CallsObject(cast(MockObject[T], mock)))
+    return cast(CallsWrapper[T], cast(object, _CallsObject(cast(MockObject[T], mock))))

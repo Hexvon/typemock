@@ -2,7 +2,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from typing import TypeVar
 
-from typemock._calls import _calls
+from typemock._calls import CallsWrapper, _calls
 from typemock._mock import _setup_mock, _tmock, _when
 from typemock._verify import _verify
 from typemock.api import ResponseBuilder, TypeSafety
@@ -23,7 +23,7 @@ def verify(mock: T, exactly: int = -1) -> T:
     return _verify(mock=mock, exactly=exactly)
 
 
-def calls(mock: T) -> T:
+def calls(mock: T) -> CallsWrapper[T]:
     return _calls(mock=mock)
 
 
