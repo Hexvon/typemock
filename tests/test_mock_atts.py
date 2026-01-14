@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from typemock import tmock, when
+from typemock import attr, setup_mock, tmock, when
+from typemock.api import MockingError
 
 
 class MyThing:
@@ -158,3 +159,76 @@ class TestBasicClassAttributeMocking(TestCase):
                 actual = my_thing_mock.derived_property_throws_error
 
                 self.assertEqual(expected, actual)
+
+
+class TestAttrFunction(TestCase):
+    def test_attr__class_attribute__then_return(self):
+        expected = 42
+        mock = tmock(MyThing)
+
+        with setup_mock(mock):
+            attr(mock.class_att_with_type).then_return(expected)
+
+        actual = mock.class_att_with_type
+        self.assertEqual(expected, actual)
+
+    def test_attr__instance_attribute__then_return(self):
+        expected = 99
+        mock = tmock(MyThing)
+
+        with setup_mock(mock):
+            attr(mock.instance_att_typed_init).then_return(expected)
+
+        actual = mock.instance_att_typed_init
+        self.assertEqual(expected, actual)
+
+    def test_attr__property__then_return(self):
+        expected = "mocked_value"
+        mock = tmock(MyThing)
+
+        with setup_mock(mock):
+            attr(mock.derived_property).then_return(expected)
+
+        actual = mock.derived_property
+        self.assertEqual(expected, actual)
+
+    def test_attr__then_return_many(self):
+        expected_values = [1, 2, 3]
+        mock = tmock(MyThing)
+
+        with setup_mock(mock):
+            attr(mock.class_att_with_type).then_return_many(expected_values)
+
+        for expected in expected_values:
+            actual = mock.class_att_with_type
+            self.assertEqual(expected, actual)
+
+    def test_attr__then_raise(self):
+        mock = tmock(MyThing)
+
+        with setup_mock(mock):
+            attr(mock.class_att_with_type).then_raise(ValueError("test error"))
+
+        with self.assertRaises(ValueError):
+            _ = mock.class_att_with_type
+
+    def test_attr__then_do(self):
+        call_count = [0]
+
+        def custom_getter():
+            call_count[0] += 1
+            return call_count[0] * 10
+
+        mock = tmock(MyThing)
+
+        with setup_mock(mock):
+            attr(mock.class_att_with_type).then_do(custom_getter)
+
+        self.assertEqual(10, mock.class_att_with_type)
+        self.assertEqual(20, mock.class_att_with_type)
+
+    def test_attr__outside_setup_mock__raises_error(self):
+        mock = tmock(MyThing)
+
+        with self.assertRaises(MockingError):
+            attr(mock.class_att_with_type).then_return(1)

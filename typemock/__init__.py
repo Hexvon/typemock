@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from typing import TypeVar
 
 from typemock._calls import CallsWrapper, _calls
-from typemock._mock import _setup_mock, _tmock, _when
+from typemock._mock import _attr, _setup_mock, _tmock, _when
 from typemock._verify import _verify
 from typemock.api import ResponseBuilder, TypeSafety
 
@@ -17,6 +17,10 @@ def tmock(clazz: type[T] | T, type_safety: TypeSafety = TypeSafety.STRICT) -> T:
 
 def when(mock_call_result: R) -> ResponseBuilder[R]:
     return _when(mock_call_result=mock_call_result)
+
+
+def attr(mock_attr_access: R) -> ResponseBuilder[R]:
+    return _attr(mock_attr_access=mock_attr_access)
 
 
 def verify(mock: T, exactly: int = -1) -> T:

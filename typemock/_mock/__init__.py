@@ -76,6 +76,21 @@ def _when(mock_call_result: T) -> ResponseBuilder[T]:
     return cast(ResponseBuilder[T], mock_call_result)
 
 
+def _attr(mock_attr_access: R) -> ResponseBuilder[R]:
+    """
+    Hook for initializing attribute behaviour mocking builder.
+
+    Args:
+        mock_attr_access: The result of accessing a mock attribute
+
+    Returns:
+        ResponseBuilder for configuring the attribute behavior
+    """
+    if not isinstance(mock_attr_access, ResponseBuilder):
+        raise MockingError(_error_when_context_closed)
+    return cast(ResponseBuilder[R], mock_attr_access)
+
+
 @contextmanager
 def _setup_mock(mock: T) -> Generator[T, None, None]:
     """
