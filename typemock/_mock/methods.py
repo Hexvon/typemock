@@ -1,8 +1,8 @@
 import inspect
 from collections.abc import Callable
 from inspect import Signature
-from types import FunctionType
-from typing import Any, TypeVar
+from types import CoroutineType, FunctionType
+from typing import Any, TypeVar, overload
 
 from typemock._mock.responders import (
     Responder,
@@ -264,6 +264,14 @@ class MethodResponseBuilder[R](ResponseBuilder[R]):
         self._method_state = method_state
         self._args = args
         self._kwargs = kwargs
+
+    @overload
+    def then_return(
+        self: "MethodResponseBuilder[CoroutineType[Any, Any, T]]", result: T
+    ) -> None: ...
+
+    @overload
+    def then_return(self, result: R) -> None: ...
 
     def then_return(self, result: R) -> None:
         self._method_state.set_response(result, *self._args, **self._kwargs)

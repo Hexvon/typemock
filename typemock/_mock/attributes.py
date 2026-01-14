@@ -1,4 +1,5 @@
-from typing import Any, Generic, List, Tuple, Type, TypeVar
+from types import CoroutineType
+from typing import Any, Generic, List, Tuple, Type, TypeVar, overload
 
 from typemock._mock.responders import (
     Responder,
@@ -86,6 +87,14 @@ class MockAttributeState(Generic[R]):
 class AttributeResponseBuilder(Generic[R], ResponseBuilder[R]):
     def __init__(self, attribute_state: MockAttributeState):
         self._attribute_state = attribute_state
+
+    @overload
+    def then_return(
+        self: "AttributeResponseBuilder[CoroutineType[Any, Any, T]]", result: T
+    ) -> None: ...
+
+    @overload
+    def then_return(self, result: R) -> None: ...
 
     def then_return(self, result: R) -> None:
         self._attribute_state.set_response(result)

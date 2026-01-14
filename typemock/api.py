@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from enum import Enum
-from typing import TypeVar
+from types import CoroutineType
+from typing import Any, TypeVar, overload
 
 T = TypeVar("T")
 R = TypeVar("R")
@@ -10,6 +11,12 @@ type DoFunction[R] = Callable[..., R]
 
 
 class ResponseBuilder[R](ABC):
+    @overload
+    def then_return(self: "ResponseBuilder[CoroutineType[Any, Any, T]]", result: T) -> None: ...
+
+    @overload
+    def then_return(self, result: R) -> None: ...
+
     @abstractmethod
     def then_return(self, result: R) -> None:
         """
