@@ -84,6 +84,18 @@ from typemock import calls
 
 calls(my_thing_mock).multiple_arg.assert_called_once()
 calls(my_thing_mock).multiple_arg.call_count  # 1
+
+# Mock attributes/properties with attr()
+from typemock import attr
+
+class Config:
+    name: str = "default"
+
+config_mock = tmock(Config)
+with setup_mock(config_mock):
+    attr(config_mock.name).then_return("mocked")
+
+assert config_mock.name == "mocked"
 ```
 
 ### Type safety
@@ -123,7 +135,7 @@ with tmock(MyThing) as my_thing_mock:
 - **Exception mocking** — `then_raise()` to mock error conditions
 - **Custom callbacks** — `then_do()` for custom response logic
 - **Async support** — works with async/await methods
-- **Attribute mocking** — mock class and instance attributes
+- **Attribute mocking** — mock class and instance attributes with `attr()`
 - **Verification** — verify method calls with `verify()`
 - **Call introspection** — inspect calls with `calls()` (call_count, call_args, assert_called_*)
 
